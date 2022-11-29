@@ -1,11 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
+  private users: User[] = [];
+
   create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+    const currentMaxId = this.users[this.users.length - 1]?.id || 0;
+
+    const id = currentMaxId + 1;
+    const user: User = {
+      id,
+      ...createUserDto,
+    };
+
+    const userExists = this.users.find(
+      (user) => user.email === createUserDto.email,
+    );
+
+    if (userExists) {
+      return 'User already exists';
+    }
+
+    this.users.push(user);
+
+    return user;
   }
 
   findAll() {
